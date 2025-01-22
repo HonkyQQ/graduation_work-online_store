@@ -48,14 +48,9 @@ public class AuthController {
     public String loginUser(@RequestParam String email, @RequestParam String password, Model model) {
         try {
             User user = userService.authenticateUser(email, password);
-
-            // Создаем токен аутентификации
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
-
-            // Устанавливаем токен в SecurityContext
             SecurityContextHolder.getContext().setAuthentication(authToken);
-
             return "redirect:/";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());

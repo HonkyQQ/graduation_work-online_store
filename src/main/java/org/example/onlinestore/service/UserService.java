@@ -15,28 +15,19 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
     }
 
-    /**
-     * Проверяет, существует ли пользователь с указанным email.
-     */
     public boolean isEmailTaken(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    /**
-     * Проверяет, существует ли пользователь с указанным username.
-     */
     public boolean isUsernameTaken(String username) {
         return userRepository.findByUsername(username).isPresent();
     }
 
-    /**
-     * Регистрирует нового пользователя. Хэширует пароль перед сохранением.
-     */
     public User registerUser(User user) {
         if (isEmailTaken(user.getEmail())) {
             throw new RuntimeException("Email уже используется.");
@@ -45,13 +36,10 @@ public class UserService {
             throw new RuntimeException("Имя пользователя уже используется.");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Хэшируем пароль
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
-    /**
-     * Авторизует пользователя по email и паролю.
-     */
     public User authenticateUser(String email, String password) {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
@@ -60,19 +48,8 @@ public class UserService {
         throw new RuntimeException("Неверные данные для входа.");
     }
 
-    /**
-     * Возвращает пользователя по ID.
-     */
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Пользователь с ID " + userId + " не найден."));
-    }
-
-    /**
-     * Возвращает пользователя по email.
-     */
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Пользователь с email " + email + " не найден."));
     }
 }
