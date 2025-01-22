@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизация</title>
+    <link rel="stylesheet" th:href="@{/static/style.css}">
+</head>
+<body>
+<header>
+    <div class="header">
+        <div class="logo">
+            <a th:href="@{/}">
+                <img src="/images/logo.png" alt="Логотип магазина" height="90">
+            </a>
+        </div>
+    </div>
+</header>
+
+<main>
+    <h1 class="title">Авторизация</h1>
+    <form th:action="@{/auth/login}" method="post">
+        <label for="email">Электронная почта:</label>
+        <input type="email" id="email" name="email" required><br>
+
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="password" required><br>
+
+        <button type="submit">Войти</button>
+    </form>
+
+    <p>Нет аккаунта? <a th:href="@{/auth/register}">Зарегистрироваться</a></p>
+
+    <p th:if="${error}" th:text="${error}" style="color: red;"></p>
+</main>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        background-color: #f4f4f4;
+        padding: 10px 20px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .logo img {
+        height: 90px;
+    }
+
+    main {
+        padding: 20px;
+    }
+
+    .title {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+    }
+
+    form {
+        max-width: 400px;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    form label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    form input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    form button {
+        width: 100%;
+        padding: 10px;
+        background-color: #ff0164;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    form button:hover {
+        background-color: #ff0164;
+    }
+
+    p {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    p a {
+        color: #00d9ff;
+        text-decoration: none;
+    }
+
+    p a:hover {
+        text-decoration: underline;
+    }
+</style>
+</body>
+</html>

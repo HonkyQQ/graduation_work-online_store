@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Каталог товаров</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+  <div class="header">
+    <div class="logo">
+      <a th:href="@{/}">
+        <img src="/images/logo.png" alt="Логотип магазина" height="90">
+      </a>
+    </div>
+    <div class="search-bar">
+      <form th:action="@{/search}" method="get">
+        <input type="text" name="query" placeholder="Поиск товаров..." required>
+        <button type="submit">Поиск</button>
+      </form>
+    </div>
+    <div class="header-buttons">
+      <a th:href="@{/favorites}">Избранное</a>
+      <a th:href="@{/cart}">Корзина</a>
+      <a th:href="@{/orders}">Заказы</a>
+      <a th:href="@{/auth/login}" th:if="${loggedInUser == null}">Войти</a>
+      <span th:if="${loggedInUser != null}" class="logged-in-indicator">★</span>
+    </div>
+  </div>
+</header>
+
+<main class="main-content">
+  <aside class="sidebar">
+    <div class="categories">
+      <h3>Категории</h3>
+      <ul>
+        <li th:each="category : ${categories}">
+          <a th:href="@{/catalog/{id}(id=${category.id})}" th:text="${category.name}"></a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="filters">
+      <form th:action="@{/catalog}" method="get" class="filters-form">
+        <input type="hidden" name="category" th:value="${category}">
+
+        <div class="filter-group">
+          <label for="minPrice">Мин.цена:</label>
+          <input type="number" id="minPrice" name="minPrice" step="1" placeholder="Мин. цена">
+        </div>
+
+        <div class="filter-group">
+          <label for="maxPrice">Макс.цена:</label>
+          <input type="number" id="maxPrice" name="maxPrice" step="1" placeholder="Макс. цена">
+        </div>
+
+        <div class="filter-group">
+          <label for="sortPrice">Сортировка по цене:</label>
+          <select id="sortPrice" name="sortPrice">
+            <option value="">Не сортировать</option>
+            <option value="asc" th:selected="${sortPrice == 'asc'}">По возрастанию</option>
+            <option value="desc" th:selected="${sortPrice == 'desc'}">По убыванию</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="sortRating">Сортировка по рейтингу:</label>
+          <select id="sortRating" name="sortRating">
+            <option value="">Не сортировать</option>
+            <option value="asc" th:selected="${sortRating == 'asc'}">По возрастанию</option>
+            <option value="desc" th:selected="${sortRating == 'desc'}">По убыванию</option>
+          </select>
+        </div>
+
+        <button type="submit">Применить</button>
+      </form>
+    </div>
+  </aside>
+
+  <section class="products">
+    <h2>Товары</h2>
+    <div class="product-grid">
+      <div class="product-card" th:each="product : ${products}">
+        <img th:src="@{/images/${product.imageUrl}}" alt="Изображение товара">
+        <h3 th:text="${product.name}">Название товара</h3>
+        <p th:text="${product.description}">Описание товара</p>
+        <p>Цена: <span th:text="${product.price}">Цена товара</span> ₽</p>
+        <p>Рейтинг: <span th:text="${product.averageRating}">Рейтинг товара</span> ★</p>
+        <a th:href="@{/product/{id}(id=${product.id})}" class="details-button">Подробнее</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<style>
+
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f4f4f4;
+  }
+
+  .search-bar form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .search-bar input {
+    width: 400px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px 0 0 5px;
+  }
+
+  .search-bar button {
+    padding: 5px 15px;
+    background-color: #ff0164;
+    color: white;
+    border: none;
+    border-radius: 0 5px 5px 0;
+  }
+
+  .main-content {
+    display: flex;
+    gap: 20px;
+  }
+
+  .sidebar {
+    width: 250px;
+    flex-shrink: 0;
+  }
+
+  .categories,
+  .filters {
+    background-color: #f4f4f4;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+.filters {
+display: flex;
+flex-direction: column;
+}
+
+.filters-form {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+.filter-group {
+display: flex;
+flex-direction: column;
+}
+
+.products {
+flex-grow: 1;
+}
+
+.product-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+gap: 20px;
+}
+
+.product-card {
+border: 1px solid #ddd;
+padding: 10px;
+text-align: center;
+background-color: #fff;
+border-radius: 5px;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.product-card img {
+max-width: 100%;
+height: auto;
+margin-bottom: 10px;
+}
+</style>
+</body>
+</html>

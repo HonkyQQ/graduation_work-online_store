@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корзина</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+  <div class="header">
+    <div class="logo">
+      <a th:href="@{/}">
+        <img src="/images/logo.png" alt="Логотип магазина" height="90">
+      </a>
+    </div>
+    <div class="search-bar">
+      <form th:action="@{/search}" method="get">
+        <input type="text" name="query" placeholder="Поиск товаров..." required>
+        <button type="submit">Поиск</button>
+      </form>
+    </div>
+    <nav class="header-buttons">
+      <a th:href="@{/favorites}">Избранное</a>
+      <a th:href="@{/cart}">Корзина</a>
+      <a th:href="@{/orders}">Заказы</a>
+      <a th:href="@{/auth/login}" th:if="${loggedInUser == null}">Войти</a>
+        <span th:if="${loggedInUser != null}" class="logged-in-indicator">★</span>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <h1>Корзина</h1>
+  <ul id="cart-items">
+    <li th:each="product : ${products}">
+      <div class="cart-item">
+        <img th:src="@{|/static/images/${product.imageUrl}|}" alt="Товар" style="width: 100px; height: 100px;">
+        <div class="cart-item-details">
+          <strong th:text="${product.name}">Название товара</strong>
+          <span th:text="${product.price} + ' ₽'">Цена товара</span>
+        </div>
+        <button th:attr="onclick=|removeFromCart(${product.id})|">Удалить</button>
+      </div>
+    </li>
+  </ul>
+  <h2>Общая стоимость: <span th:text="${totalPrice} + ' ₽'">0 ₽</span></h2>
+  <button onclick="location.href='/checkout'">Оформить заказ</button>
+</main>
+
+<script>
+  function removeFromCart(productId) {
+    fetch('/api/cart/remove', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id: productId})
+    })
+            .then(() => location.reload())
+            .catch(error => console.error('Ошибка при удалении продукта из корзины:', error));
+  }
+</script>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .header-buttons {
+    display: flex;
+    gap: 15px;
+  }
+
+  .search-bar input {
+    padding: 5px;
+    width: 250px;
+  }
+
+  main {
+    padding: 20px;
+  }
+
+  #cart-items {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+  }
+
+  .cart-item img {
+    flex-shrink: 0;
+  }
+
+  .cart-item-details {
+    flex-grow: 1;
+    padding: 0 20px;
+  }
+
+  .cart-item button {
+    background-color: #ff6f61;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  .cart-item button:hover {
+    background-color: #ff4c3b;
+  }
+
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #ff0164;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  button:hover {
+    background-color: #ff0164;
+  }
+</style>
+</body>
+</html>

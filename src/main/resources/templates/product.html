@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.name}">Товар</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+    <div class="header">
+        <div class="logo">
+            <a th:href="@{/}">
+                <img src="/images/logo.png" alt="Логотип магазина" height="90">
+            </a>
+        </div>
+        <div class="search-bar">
+            <form th:action="@{/search}" method="get">
+                <input type="text" name="query" placeholder="Поиск товаров..." required>
+                <button type="submit">Поиск</button>
+            </form>
+        </div>
+        <div class="header-buttons">
+            <a th:href="@{/favorites}">Избранное</a>
+            <a th:href="@{/cart}">Корзина</a>
+            <a th:href="@{/orders}">Заказы</a>
+            <a th:href="@{/auth/login}" th:if="${loggedInUser == null}">Войти</a>
+            <span th:if="${loggedInUser != null}" class="logged-in-indicator">★</span>
+        </div>
+    </div>
+</header>
+<main>
+    <div class="product-details">
+        <div class="product-image">
+            <img th:src="@{|/images/${product.imageUrl}|}" alt="Товар">
+        </div>
+        <div class="product-info">
+            <h1 th:text="${product.name}">Название товара</h1>
+            <p th:text="${product.description}">Описание товара</p>
+            <p>Цена: <span th:text="${product.price}"></span>₽</p>
+            <p>Средний рейтинг: <span th:text="${product.averageRating}"></span> ★</p>
+
+            <form th:action="@{/cart/add}" method="post">
+                <input type="hidden" name="productId" th:value="${product.id}">
+                <button type="submit">Добавить в корзину</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="reviews">
+        <h2>Отзывы</h2>
+        <form method="get" th:action="@{/product/{id}(id=${product.id})}">
+            <label for="sortType">Сортировать:</label>
+            <select name="sortType" id="sortType">
+                <option value="rating_desc" th:selected="${sortType == 'rating_desc'}">Лучшие отзывы</option>
+                <option value="rating_asc" th:selected="${sortType == 'rating_asc'}">Худшие отзывы</option>
+                <option value="date_desc" th:selected="${sortType == 'date_desc'}">Новые</option>
+                <option value="date_asc" th:selected="${sortType == 'date_asc'}">Старые</option>
+            </select>
+            <button type="submit">Применить</button>
+        </form>
+
+        <ul>
+            <li th:each="review : ${product.reviews}">
+                <p><strong th:text="${review.user.username}"></strong>:</p>
+                <p th:text="${review.comment}"></p>
+                <p>Рейтинг: <span th:text="${review.rating}"></span> ★</p>
+            </li>
+        </ul>
+    </div>
+</main>
+
+<style>
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #ffffff;
+        padding: 10px 20px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-bar {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .search-bar form {
+        display: flex;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .search-bar input {
+        flex: 1;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #e4e4e4;
+        border-radius: 5px 0 0 5px;
+        box-sizing: border-box;
+    }
+
+    .search-bar button {
+        padding: 10px 15px;
+        font-size: 16px;
+        border: none;
+        background-color: #ff0164;
+        color: white;
+        cursor: pointer;
+        border-radius: 0 5px 5px 0;
+        transition: background-color 0.3s ease;
+    }
+
+    .search-bar button:hover {
+        background-color: #ff0164;
+    }
+
+    .header-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .header-buttons a {
+        text-decoration: none;
+        color: #ff0164;
+        font-weight: bold;
+    }
+
+
+    .header-buttons a:hover {
+        text-decoration: underline;
+    }
+
+    .product-details {
+        display: flex;
+        padding: 20px;
+        margin: 20px auto;
+        max-width: 800px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-image {
+        flex: 1;
+        text-align: center;
+        margin-right: 20px;
+    }
+
+    .product-info {
+        flex: 2;
+    }
+
+    .reviews {
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+</style>
+</body>
+</html>
