@@ -19,8 +19,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // CSRF можно включить позже, если потребуется
+                .csrf(csrf -> csrf.disable()) // Отключение CSRF для упрощения тестирования (включите, если нужно)
                 .authorizeHttpRequests(auth -> auth
+                        // Доступ без авторизации
                         .requestMatchers(
                                 "/",
                                 "/catalog/**",
@@ -32,19 +33,24 @@ public class SecurityConfig {
                                 "/cart/**",
                                 "/orders/**",
                                 "/css/**"
-                        ).permitAll() // Разрешаем доступ к указанным путям без авторизации
-                        .anyRequest().authenticated() // Остальные запросы требуют авторизации
+                        ).permitAll()
+                        // Требование авторизации для отзывов
+                        .requestMatchers("/product/**/reviews").authenticated()
+                        // Все остальные запросы требуют авторизации
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/auth/login") // Указываем страницу логина
                         .usernameParameter("email") // Параметр для email
                         .passwordParameter("password") // Параметр для пароля
-                        .defaultSuccessUrl("/", true) // Перенаправление на главную после успешного входа
+                        .defaultSuccessUrl("/", true) // Перенаправление на главную страницу после успешного входа
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout") // URL для выхода
                         .logoutSuccessUrl("/") // Перенаправление после выхода
+                        .invalidateHttpSession(true) // Завершает сессию
+                        .deleteCookies("JSESSIONID") // Удаляет cookie
                         .permitAll()
                 );
         return http.build();

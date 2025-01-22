@@ -26,6 +26,7 @@
       <a th:href="@{/orders}">Заказы</a>
       <a th:href="@{/auth/login}" th:if="${#authentication.principal == 'anonymous'}">Войти</a>
       <span th:if="${#authentication.principal != 'anonymous'}" class="logged-in-indicator">★</span>
+      <a th:href="@{/logout}">Выйти</a>
     </div>
   </div>
 </header>

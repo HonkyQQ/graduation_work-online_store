@@ -3,12 +3,14 @@ package org.example.onlinestore.controller;
 import org.example.onlinestore.entity.Review;
 import org.example.onlinestore.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.security.Principal;
 
-@RestController
-@RequestMapping("/api/reviews")
+@Controller
+@RequestMapping("/product/{productId}/reviews")
 public class ReviewController {
 
     private final ReviewService reviewService;
@@ -18,36 +20,22 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-
-    @GetMapping("/product/{productId}")
-    public List<Review> getReviewsByProductId(
-            @PathVariable Long productId,
-            @RequestParam(required = false) String sortType
-    ) {
-        return reviewService.getReviewsByProductId(productId, sortType);
+    @GetMapping
+    public String getReviews(@PathVariable Long productId, Model model) {
+        model.addAttribute("reviews", reviewService.getReviewsByProduct(productId));
+        return "product";
     }
-
 
     @PostMapping
-    public Review createReview(@RequestBody Review review) {
-        return reviewService.createReview(review);
-    }
-
-
-    @PutMapping("/{id}")
-    public Review updateReview(@PathVariable Long id, @RequestBody Review updatedReview) {
-        return reviewService.updateReview(id, updatedReview);
-    }
-
-
-    @DeleteMapping("/{id}")
-    public void deleteReview(@PathVariable Long id) {
-        reviewService.deleteReview(id);
-    }
-
-
-    @GetMapping("/{id}")
-    public Review getReviewById(@PathVariable Long id) {
-        return reviewService.getReviewById(id);
+    public String addReview(
+            @PathVariable Long productId,
+            @RequestParam String comment,
+            @RequestParam int rating,
+            Principal principal) {
+        Review review = new Review();
+        review.setComment(comment);
+        review.setRating(rating);
+        reviewService.addReview(review, principal.getName());
+        return "redirect:/product/" + productId;
     }
 }

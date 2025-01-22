@@ -26,6 +26,7 @@
             <a th:href="@{/orders}">Заказы</a>
             <a th:href="@{/auth/login}" th:if="${#authentication.principal == 'anonymous'}">Войти</a>
             <span th:if="${#authentication.principal != 'anonymous'}" class="logged-in-indicator">★</span>
+            <a th:href="@{/logout}">Выйти</a>
         </div>
     </div>
 </header>
@@ -49,24 +50,23 @@
 
     <div class="reviews">
         <h2>Отзывы</h2>
-        <form method="get" th:action="@{/product/{id}(id=${product.id})}">
-            <label for="sortType">Сортировать:</label>
-            <select name="sortType" id="sortType">
-                <option value="rating_desc" th:selected="${sortType == 'rating_desc'}">Лучшие отзывы</option>
-                <option value="rating_asc" th:selected="${sortType == 'rating_asc'}">Худшие отзывы</option>
-                <option value="date_desc" th:selected="${sortType == 'date_desc'}">Новые</option>
-                <option value="date_asc" th:selected="${sortType == 'date_asc'}">Старые</option>
-            </select>
-            <button type="submit">Применить</button>
-        </form>
-
         <ul>
-            <li th:each="review : ${product.reviews}">
-                <p><strong th:text="${review.user.username}"></strong>:</p>
+            <li th:each="review : ${reviews}">
+                <strong th:text="${review.user.username}"></strong>
                 <p th:text="${review.comment}"></p>
                 <p>Рейтинг: <span th:text="${review.rating}"></span> ★</p>
             </li>
         </ul>
+
+        <div th:if="${#authentication.principal != 'anonymous'}">
+            <h3>Добавить отзыв</h3>
+            <form th:action="@{/product/{productId}/reviews(productId=${product.id})}" method="post">
+                <textarea name="comment" placeholder="Напишите ваш отзыв..." required></textarea>
+                <input type="number" name="rating" min="1" max="5" required>
+                <button type="submit">Оставить отзыв</button>
+            </form>
+        </div>
+        <p th:if="${#authentication.principal == 'anonymous'}">Авторизуйтесь, чтобы оставить отзыв.</p>
     </div>
 </main>
 

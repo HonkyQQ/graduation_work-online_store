@@ -10,13 +10,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByProductId(Long productId);
 
-
-    List<Review> findByRating(int rating);
-
-
-    @Query("SELECT r FROM Review r ORDER BY r.createdAt DESC")
-    List<Review> findAllSortedByNewest();
-
-    @Query("SELECT r FROM Review r ORDER BY r.createdAt ASC")
-    List<Review> findAllSortedByOldest();
+    @Query("SELECT r FROM Review r WHERE r.product.id = :productId ORDER BY r.createdAt DESC")
+    List<Review> findByProductIdSortedByDateDesc(Long productId);
 }
