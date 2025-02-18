@@ -28,22 +28,23 @@ public class ReviewController {
     public String getReviews(@PathVariable Long productId, Model model) {
         List<Review> reviews = reviewService.getReviewsByProduct(productId);
         model.addAttribute("reviews", reviews);
-        return "fragments/review-list";
+        return "fragments/review-list"; // Thymeleaf загрузит фрагмент
     }
 
     @PostMapping
     public String addReview(
             @PathVariable Long productId,
-            @ModelAttribute Review review,
+            @RequestParam String comment,
+            @RequestParam int rating,
             Principal principal) {
 
         if (principal == null) {
             return "redirect:/auth/login";
         }
 
-        reviewService.addReview(review.getComment(), review.getRating(), principal.getName(), productId);
-        productService.updateAverageRating(productId); // Обновляем средний рейтинг
+        reviewService.addReview(comment, rating, principal.getName(), productId);
+        productService.updateAverageRating(productId); // Обновляем рейтинг
 
-        return "redirect:/product/" + productId;
+        return "redirect:/product/" + productId + "/reviews";
     }
 }

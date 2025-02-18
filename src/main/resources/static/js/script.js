@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (response.ok) {
                         setTimeout(() => {
                             if (authIndicator) {
-                                authIndicator.style.display = "none"; // Убираем звездочку после выхода
+                                authIndicator.style.display = "none";
                             }
                             window.location.href = "/";
                         }, 500);
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function submitReview() {
-    const productId = window.location.pathname.split('/')[2];
+    const productId = window.location.pathname.split('/')[2]; // Получаем ID товара из URL
     const comment = document.getElementById('comment').value.trim();
     const rating = document.getElementById('rating').value;
 
@@ -29,19 +29,20 @@ function submitReview() {
         return;
     }
 
-    let formData = new FormData();
+    const formData = new URLSearchParams();
     formData.append("comment", comment);
     formData.append("rating", rating);
 
-    fetch('/product/${productId}/reviews', {
+    fetch(`/product/${productId}/reviews`, { // Теперь URL корректный
         method: "POST",
-        body: formData
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: formData.toString()
     })
     .then(response => {
         if (response.redirected) {
             window.location.href = response.url;
         } else {
-            return fetch('/product/${productId}/reviews');
+            return fetch(`/product/${productId}/reviews`);
         }
     })
     .then(response => response.text())

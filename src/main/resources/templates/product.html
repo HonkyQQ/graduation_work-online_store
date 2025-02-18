@@ -54,7 +54,7 @@
 
     <div class="reviews">
         <h2>Отзывы</h2>
-        <div id="reviews-container" th:replace="~{fragments/review-list :: reviewList}"></div>
+        <div id="reviews-container" th:insert="fragments/review-list :: reviewList"></div>
 
         <div th:if="${#authorization.expression('isAuthenticated()')}">
             <h3>Добавить отзыв</h3>
@@ -66,6 +66,7 @@
         </div>
         <p th:unless="${#authorization.expression('isAuthenticated()')}">Авторизуйтесь, чтобы оставить отзыв.</p>
     </div>
+
 </main>
 <style>
     .reviews {

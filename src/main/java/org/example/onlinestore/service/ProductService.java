@@ -5,6 +5,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.example.onlinestore.entity.Product;
 import org.example.onlinestore.repository.ProductRepository;
+import org.example.onlinestore.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,33 +17,43 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ReviewRepository reviewRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, ReviewRepository reviewRepository) {
         this.productRepository = productRepository;
+        this.reviewRepository = reviewRepository;
     }
 
-
+    /**
+     * Получить все товары.
+     */
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-
+    /**
+     * Получить товары по категории.
+     */
     public List<Product> getProductsByCategory(Long categoryId) {
         return productRepository.findAll((root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("category").get("id"), categoryId));
     }
 
-
+    /**
+     * Получить товар по ID.
+     */
     public Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Товар с ID " + id + " не найден."));
     }
 
-
+    /**
+     * Поиск товаров по строке.
+     */
     public List<Product> searchProducts(String query) {
         return productRepository.findAll((root, queryBuilder, criteriaBuilder) -> {
             String likePattern = "%" + query.toLowerCase() + "%";
@@ -53,7 +64,9 @@ public class ProductService {
         });
     }
 
-
+    /**
+     * Фильтрация товаров по параметрам.
+     */
     public List<Product> filterProducts(String category, BigDecimal minPrice, BigDecimal maxPrice, String sortPrice, String sortRating) {
         StringBuilder jpql = new StringBuilder("SELECT p FROM Product p LEFT JOIN p.reviews r WHERE 1=1");
 
@@ -68,7 +81,7 @@ public class ProductService {
             jpql.append(" AND p.price <= :maxPrice");
         }
 
-        jpql.append(" GROUP BY p.id");
+        jpql.append(" GROUP BY p.id"); // Группировка по продуктам
 
         // Сортировка
         if ("asc".equalsIgnoreCase(sortPrice)) {
@@ -97,7 +110,9 @@ public class ProductService {
         return query.getResultList();
     }
 
-
+    /**
+     * Обновление среднего рейтинга товара.
+     */
     @Transactional
     public void updateAverageRating(Long productId) {
         Product product = getProductById(productId);
