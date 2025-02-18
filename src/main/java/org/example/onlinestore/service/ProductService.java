@@ -7,6 +7,7 @@ import org.example.onlinestore.entity.Product;
 import org.example.onlinestore.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,32 +25,35 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    /**
-     * Получить все товары.
-     */
+
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    /**
-     * Получить товары по категории.
-     */
+
     public List<Product> getProductsByCategory(Long categoryId) {
         return productRepository.findAll((root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("category").get("id"), categoryId));
     }
 
-    /**
-     * Получить товар по ID.
-     */
+
     public Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Товар с ID " + id + " не найден."));
     }
 
-    /**
-     * Фильтрация товаров по параметрам.
-     */
+
+    public List<Product> searchProducts(String query) {
+        return productRepository.findAll((root, queryBuilder, criteriaBuilder) -> {
+            String likePattern = "%" + query.toLowerCase() + "%";
+            return criteriaBuilder.or(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), likePattern),
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), likePattern)
+            );
+        });
+    }
+
+
     public List<Product> filterProducts(String category, BigDecimal minPrice, BigDecimal maxPrice, String sortPrice, String sortRating) {
         StringBuilder jpql = new StringBuilder("SELECT p FROM Product p LEFT JOIN p.reviews r WHERE 1=1");
 
@@ -64,7 +68,7 @@ public class ProductService {
             jpql.append(" AND p.price <= :maxPrice");
         }
 
-        jpql.append(" GROUP BY p.id"); // Группировка по продуктам
+        jpql.append(" GROUP BY p.id");
 
         // Сортировка
         if ("asc".equalsIgnoreCase(sortPrice)) {
@@ -93,16 +97,17 @@ public class ProductService {
         return query.getResultList();
     }
 
-    /**
-     * Поиск товаров по строке.
-     */
-    public List<Product> searchProducts(String query) {
-        return productRepository.findAll((root, queryBuilder, criteriaBuilder) -> {
-            String likePattern = "%" + query.toLowerCase() + "%";
-            return criteriaBuilder.or(
-                    criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), likePattern),
-                    criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), likePattern)
-            );
-        });
+
+    @Transactional
+    public void updateAverageRating(Long productId) {
+        Product product = getProductById(productId);
+
+        String jpql = "SELECT AVG(r.rating) FROM Review r WHERE r.product.id = :productId";
+        Double avgRating = entityManager.createQuery(jpql, Double.class)
+                .setParameter("productId", productId)
+                .getSingleResult();
+
+        product.setAverageRating(avgRating != null ? avgRating : 0.0);
+        productRepository.save(product);
     }
 }

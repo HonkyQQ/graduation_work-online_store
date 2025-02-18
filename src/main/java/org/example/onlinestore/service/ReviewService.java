@@ -8,6 +8,7 @@ import org.example.onlinestore.repository.ReviewRepository;
 import org.example.onlinestore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ public class ReviewService {
         return reviewRepository.findByProductId(productId);
     }
 
+    @Transactional
     public void addReview(String comment, int rating, String userEmail, Long productId) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
@@ -37,10 +39,10 @@ public class ReviewService {
                 .orElseThrow(() -> new RuntimeException("Продукт не найден"));
 
         Review review = new Review();
-        review.setComment(comment);
-        review.setRating(rating);
         review.setUser(user);
         review.setProduct(product);
+        review.setComment(comment);
+        review.setRating(rating);
 
         reviewRepository.save(review);
     }

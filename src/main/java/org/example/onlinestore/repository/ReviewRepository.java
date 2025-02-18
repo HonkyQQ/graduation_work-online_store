@@ -10,6 +10,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByProductId(Long productId);
 
-    @Query("SELECT r FROM Review r WHERE r.product.id = :productId ORDER BY r.createdAt DESC")
-    List<Review> findByProductIdSortedByDateDesc(Long productId);
+    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.product.id = :productId")
+    Double calculateAverageRating(Long productId);
 }

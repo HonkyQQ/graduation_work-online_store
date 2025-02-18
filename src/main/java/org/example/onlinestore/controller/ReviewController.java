@@ -2,6 +2,7 @@ package org.example.onlinestore.controller;
 
 import org.example.onlinestore.entity.Review;
 import org.example.onlinestore.service.ReviewService;
+import org.example.onlinestore.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,31 +16,34 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final ProductService productService;
 
     @Autowired
-    public ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService, ProductService productService) {
         this.reviewService = reviewService;
+        this.productService = productService;
     }
 
-    @GetMapping(produces = "text/html")
+    @GetMapping
     public String getReviews(@PathVariable Long productId, Model model) {
         List<Review> reviews = reviewService.getReviewsByProduct(productId);
         model.addAttribute("reviews", reviews);
-        return "fragments/review-list"; // Thymeleaf теперь корректно загрузит фрагмент
+        return "fragments/review-list";
     }
 
     @PostMapping
     public String addReview(
             @PathVariable Long productId,
-            @RequestParam String comment,
-            @RequestParam int rating,
+            @ModelAttribute Review review,
             Principal principal) {
 
         if (principal == null) {
             return "redirect:/auth/login";
         }
 
-        reviewService.addReview(comment, rating, principal.getName(), productId);
-        return "redirect:/product/" + productId + "/reviews";
+        reviewService.addReview(review.getComment(), review.getRating(), principal.getName(), productId);
+        productService.updateAverageRating(productId); // Обновляем средний рейтинг
+
+        return "redirect:/product/" + productId;
     }
 }

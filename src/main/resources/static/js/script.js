@@ -21,13 +21,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function submitReview() {
     const productId = window.location.pathname.split('/')[2];
-    const comment = document.getElementById('comment').value;
+    const comment = document.getElementById('comment').value.trim();
     const rating = document.getElementById('rating').value;
+
+    if (!comment || rating < 1 || rating > 5) {
+        alert("Пожалуйста, напишите отзыв и выберите рейтинг от 1 до 5.");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("comment", comment);
+    formData.append("rating", rating);
 
     fetch('/product/${productId}/reviews', {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: 'comment=${encodeURIComponent(comment)}&rating=${rating}'
+        body: formData
     })
     .then(response => {
         if (response.redirected) {
@@ -40,7 +48,7 @@ function submitReview() {
     .then(html => {
         document.getElementById('reviews-container').innerHTML = html;
         document.getElementById('comment').value = "";
-        document.getElementById('rating').value = "";
+        document.getElementById('rating').value = "1";
     })
     .catch(error => console.error("Ошибка:", error));
 }

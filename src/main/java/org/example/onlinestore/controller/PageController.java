@@ -2,6 +2,7 @@ package org.example.onlinestore.controller;
 
 import org.example.onlinestore.service.CategoryService;
 import org.example.onlinestore.service.ProductService;
+import org.example.onlinestore.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,11 +15,13 @@ public class PageController {
 
     private final ProductService productService;
     private final CategoryService categoryService;
+    private final ReviewService reviewService; // Добавил сервис отзывов
 
     @Autowired
-    public PageController(ProductService productService, CategoryService categoryService) {
+    public PageController(ProductService productService, CategoryService categoryService, ReviewService reviewService) {
         this.productService = productService;
         this.categoryService = categoryService;
+        this.reviewService = reviewService;
     }
 
     @GetMapping("/")
@@ -41,4 +44,5 @@ public class PageController {
         model.addAttribute("products", productService.searchProducts(query));
         return "catalog";
     }
+
 }
