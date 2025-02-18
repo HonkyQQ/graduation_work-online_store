@@ -35,7 +35,6 @@ public class ProductController {
             Model model) {
         List<Product> products = productService.filterProducts(category, minPrice, maxPrice, sortPrice, sortRating);
 
-        // Передаем переменные в модель
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("products", products);
         model.addAttribute("category", category);
@@ -45,8 +44,8 @@ public class ProductController {
         return "catalog";
     }
 
-    @GetMapping("/api/product/{id}")
-    public String getProductDetails(@PathVariable Long id, Model model) {
+    @GetMapping("/product/{id}")
+    public String productDetails(@PathVariable Long id, Model model) {
         Product product = productService.getProductById(id);
         model.addAttribute("product", product);
         return "product";

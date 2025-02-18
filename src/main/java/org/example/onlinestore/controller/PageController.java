@@ -21,7 +21,6 @@ public class PageController {
         this.categoryService = categoryService;
     }
 
-
     @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("categories", categoryService.getAllCategories());
@@ -29,21 +28,12 @@ public class PageController {
         return "index";
     }
 
-
     @GetMapping("/catalog/{id}")
     public String catalogByCategory(@PathVariable Long id, Model model) {
         model.addAttribute("categories", categoryService.getAllCategories());
         model.addAttribute("products", productService.getProductsByCategory(id));
         return "catalog";
     }
-
-
-    @GetMapping("/product/{id}")
-    public String productDetails(@PathVariable Long id, Model model) {
-        model.addAttribute("product", productService.getProductById(id));
-        return "product";
-    }
-
 
     @GetMapping("/search")
     public String searchProducts(@RequestParam("query") String query, Model model) {

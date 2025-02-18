@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+  <script th:src="@{/js/script.js}"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Каталог товаров</title>
@@ -20,16 +21,28 @@
         <button type="submit">Поиск</button>
       </form>
     </div>
-    <div class="header-buttons">
+    <nav class="header-buttons">
       <a th:href="@{/favorites}">Избранное</a>
       <a th:href="@{/cart}">Корзина</a>
       <a th:href="@{/orders}">Заказы</a>
-      <a th:href="@{/auth/login}" th:if="${#authentication.principal == 'anonymous'}">Войти</a>
-      <span th:if="${#authentication.principal != 'anonymous'}" class="logged-in-indicator">★</span>
-      <a th:href="@{/logout}">Выйти</a>
-    </div>
+      <a th:href="@{/auth/login}" th:if="${#authorization.expression('isAnonymous()')}">Войти</a>
+      <span id="authIndicator" th:if="${#authorization.expression('isAuthenticated()')}" class="logged-in-indicator">★</span>
+      <a href="javascript:void(0);" onclick="logout()">Выйти</a>
+    </nav>
   </div>
 </header>
+
+<script>
+  function logout() {
+    fetch('/logout', { method: 'POST' })
+      .then(response => {
+        if (response.ok) {
+          document.getElementById("authIndicator").style.display = "none";
+          window.location.href = "/";
+        }
+      });
+  }
+</script>
 
 <main class="main-content">
   <aside class="sidebar">

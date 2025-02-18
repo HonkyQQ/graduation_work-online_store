@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/product/{productId}/reviews")
@@ -20,10 +21,11 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    @GetMapping
+    @GetMapping(produces = "text/html")
     public String getReviews(@PathVariable Long productId, Model model) {
-        model.addAttribute("reviews", reviewService.getReviewsByProduct(productId));
-        return "product";
+        List<Review> reviews = reviewService.getReviewsByProduct(productId);
+        model.addAttribute("reviews", reviews);
+        return "fragments/review-list"; // Thymeleaf теперь корректно загрузит фрагмент
     }
 
     @PostMapping
@@ -32,10 +34,12 @@ public class ReviewController {
             @RequestParam String comment,
             @RequestParam int rating,
             Principal principal) {
-        Review review = new Review();
-        review.setComment(comment);
-        review.setRating(rating);
-        reviewService.addReview(review, principal.getName());
-        return "redirect:/product/" + productId;
+
+        if (principal == null) {
+            return "redirect:/auth/login";
+        }
+
+        reviewService.addReview(comment, rating, principal.getName(), productId);
+        return "redirect:/product/" + productId + "/reviews";
     }
 }

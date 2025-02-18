@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+<div th:fragment="reviewList">
+  <ul>
+    <li th:each="review : ${reviews}">
+      <strong th:text="${review.user.username}"></strong>
+      <p th:text="${review.comment}"></p>
+      <p>Рейтинг: <span th:text="${review.rating}"></span> ★</p>
+    </li>
+  </ul>
+</div>
+</body>
+</html>
