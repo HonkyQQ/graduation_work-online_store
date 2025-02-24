@@ -17,6 +17,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
         });
     }
+
+    // Загружаем отзывы при загрузке страницы
+    const productId = window.location.pathname.split('/')[2];
+    loadReviews(productId);
 });
 
 function submitReview() {
@@ -33,23 +37,36 @@ function submitReview() {
     formData.append("comment", comment);
     formData.append("rating", rating);
 
-    fetch(`/product/${productId}/reviews`, { // Теперь URL корректный
+    fetch(`/product/${productId}/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: formData.toString()
     })
     .then(response => {
-        if (response.redirected) {
-            window.location.href = response.url;
+        if (response.ok) {
+            return Promise.all([
+                fetch(`/product/${productId}/reviews`).then(res => res.text()),
+                fetch(`/product/${productId}/average-rating`).then(res => res.text())
+            ]);
         } else {
-            return fetch(`/product/${productId}/reviews`);
+            throw new Error("Ошибка при добавлении отзыва");
         }
     })
-    .then(response => response.text())
-    .then(html => {
-        document.getElementById('reviews-container').innerHTML = html;
+    .then(([reviewsHtml, newRating]) => {
+        document.getElementById('reviews-container').innerHTML = reviewsHtml;
+        document.getElementById('product-rating').textContent = newRating + " ★"; // Обновляем рейтинг
         document.getElementById('comment').value = "";
         document.getElementById('rating').value = "1";
     })
     .catch(error => console.error("Ошибка:", error));
+}
+
+// Загрузка отзывов при открытии страницы
+function loadReviews(productId) {
+    fetch(`/product/${productId}/reviews`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('reviews-container').innerHTML = html;
+        })
+        .catch(error => console.error("Ошибка загрузки отзывов:", error));
 }

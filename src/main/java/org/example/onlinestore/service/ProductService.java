@@ -28,32 +28,20 @@ public class ProductService {
         this.reviewRepository = reviewRepository;
     }
 
-    /**
-     * Получить все товары.
-     */
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    /**
-     * Получить товары по категории.
-     */
     public List<Product> getProductsByCategory(Long categoryId) {
         return productRepository.findAll((root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("category").get("id"), categoryId));
     }
 
-    /**
-     * Получить товар по ID.
-     */
     public Product getProductById(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Товар с ID " + id + " не найден."));
     }
 
-    /**
-     * Поиск товаров по строке.
-     */
     public List<Product> searchProducts(String query) {
         return productRepository.findAll((root, queryBuilder, criteriaBuilder) -> {
             String likePattern = "%" + query.toLowerCase() + "%";
@@ -64,13 +52,9 @@ public class ProductService {
         });
     }
 
-    /**
-     * Фильтрация товаров по параметрам.
-     */
     public List<Product> filterProducts(String category, BigDecimal minPrice, BigDecimal maxPrice, String sortPrice, String sortRating) {
         StringBuilder jpql = new StringBuilder("SELECT p FROM Product p LEFT JOIN p.reviews r WHERE 1=1");
 
-        // Фильтры
         if (category != null && !category.isEmpty()) {
             jpql.append(" AND p.category.name = :category");
         }
@@ -81,9 +65,8 @@ public class ProductService {
             jpql.append(" AND p.price <= :maxPrice");
         }
 
-        jpql.append(" GROUP BY p.id"); // Группировка по продуктам
+        jpql.append(" GROUP BY p.id");
 
-        // Сортировка
         if ("asc".equalsIgnoreCase(sortPrice)) {
             jpql.append(" ORDER BY p.price ASC");
         } else if ("desc".equalsIgnoreCase(sortPrice)) {
@@ -96,7 +79,6 @@ public class ProductService {
 
         TypedQuery<Product> query = entityManager.createQuery(jpql.toString(), Product.class);
 
-        // Установка параметров
         if (category != null && !category.isEmpty()) {
             query.setParameter("category", category);
         }
@@ -110,19 +92,18 @@ public class ProductService {
         return query.getResultList();
     }
 
-    /**
-     * Обновление среднего рейтинга товара.
-     */
+    public double getAverageRating(Long productId) {
+        Double avgRating = reviewRepository.calculateAverageRating(productId);
+        return (avgRating != null) ? avgRating : 0.0;
+    }
+
     @Transactional
     public void updateAverageRating(Long productId) {
         Product product = getProductById(productId);
 
-        String jpql = "SELECT AVG(r.rating) FROM Review r WHERE r.product.id = :productId";
-        Double avgRating = entityManager.createQuery(jpql, Double.class)
-                .setParameter("productId", productId)
-                .getSingleResult();
+        Double avgRating = reviewRepository.calculateAverageRating(productId);
+        product.setAverageRating((avgRating != null) ? avgRating : 0.0);
 
-        product.setAverageRating(avgRating != null ? avgRating : 0.0);
         productRepository.save(product);
     }
 }

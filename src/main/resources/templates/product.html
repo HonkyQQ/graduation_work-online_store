@@ -43,7 +43,7 @@
             <h1 th:text="${product.name}">Название товара</h1>
             <p th:text="${product.description}">Описание товара</p>
             <p>Цена: <span th:text="${product.price}"></span>₽</p>
-            <p>Средний рейтинг: <span th:text="${product.averageRating}"></span> ★</p>
+            <p>Средний рейтинг: <span id="product-rating" th:text="${product.averageRating}"></span> ★</p>
 
             <form th:action="@{/cart/add}" method="post">
                 <input type="hidden" name="productId" th:value="${product.id}">
@@ -54,7 +54,7 @@
 
     <div class="reviews">
         <h2>Отзывы</h2>
-        <div id="reviews-container" th:insert="fragments/review-list :: reviewList"></div>
+        <div id="reviews-container" th:replace="~{fragments/review-list :: reviewList}"></div>
 
         <div th:if="${#authorization.expression('isAuthenticated()')}">
             <h3>Добавить отзыв</h3>
@@ -68,11 +68,13 @@
     </div>
 
 </main>
+
 <style>
     .reviews {
-    padding: 20px;
-    margin-left: 20px;
-}
+        padding: 20px;
+        margin-left: 20px;
+    }
 </style>
+
 </body>
 </html>

@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -49,5 +50,11 @@ public class ProductController {
         Product product = productService.getProductById(id);
         model.addAttribute("product", product);
         return "product";
+    }
+
+    @GetMapping("/product/{productId}/average-rating")
+    @ResponseBody
+    public String getAverageRating(@PathVariable Long productId) {
+        return String.valueOf(productService.getAverageRating(productId));
     }
 }

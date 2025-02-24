@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 </head>
 <body>
-<div th:fragment="reviewList">
+<div id="reviews-container" th:fragment="reviewList">
   <ul>
     <li th:each="review : ${reviews}">
       <strong th:text="${review.user.username}"></strong>

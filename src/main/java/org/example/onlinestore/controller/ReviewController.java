@@ -28,7 +28,13 @@ public class ReviewController {
     public String getReviews(@PathVariable Long productId, Model model) {
         List<Review> reviews = reviewService.getReviewsByProduct(productId);
         model.addAttribute("reviews", reviews);
-        return "fragments/review-list"; // Thymeleaf загрузит фрагмент
+        return "fragments/review-list";
+    }
+
+    @GetMapping("/average-rating")
+    @ResponseBody
+    public String getAverageRating(@PathVariable Long productId) {
+        return String.valueOf(productService.getAverageRating(productId));
     }
 
     @PostMapping
@@ -36,15 +42,18 @@ public class ReviewController {
             @PathVariable Long productId,
             @RequestParam String comment,
             @RequestParam int rating,
-            Principal principal) {
+            Principal principal,
+            Model model) {
 
         if (principal == null) {
             return "redirect:/auth/login";
         }
 
         reviewService.addReview(comment, rating, principal.getName(), productId);
-        productService.updateAverageRating(productId); // Обновляем рейтинг
+        productService.updateAverageRating(productId);
 
-        return "redirect:/product/" + productId + "/reviews";
+        List<Review> updatedReviews = reviewService.getReviewsByProduct(productId);
+        model.addAttribute("reviews", updatedReviews);
+        return "fragments/review-list :: reviewList";
     }
 }
