@@ -18,13 +18,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Загружаем отзывы при загрузке страницы
     const productId = window.location.pathname.split('/')[2];
     loadReviews(productId);
 });
 
 function submitReview() {
-    const productId = window.location.pathname.split('/')[2]; // Получаем ID товара из URL
+    const productId = window.location.pathname.split('/')[2];
     const comment = document.getElementById('comment').value.trim();
     const rating = document.getElementById('rating').value;
 
@@ -43,25 +42,27 @@ function submitReview() {
         body: formData.toString()
     })
     .then(response => {
-        if (response.ok) {
-            return Promise.all([
-                fetch(`/product/${productId}/reviews`).then(res => res.text()),
-                fetch(`/product/${productId}/average-rating`).then(res => res.text())
-            ]);
-        } else {
-            throw new Error("Ошибка при добавлении отзыва");
-        }
+        if (!response.ok) throw new Error("Ошибка при добавлении отзыва");
+
+        return Promise.all([
+            fetch(`/product/${productId}/reviews`).then(res => res.text()),
+            fetch(`/product/${productId}/average-rating`).then(res => res.text())
+        ]);
     })
     .then(([reviewsHtml, newRating]) => {
         document.getElementById('reviews-container').innerHTML = reviewsHtml;
-        document.getElementById('product-rating').textContent = newRating + " ★"; // Обновляем рейтинг
+        document.getElementById('product-rating').textContent = newRating.trim() + " ★";
+
+        // Очищаем форму отзыва
         document.getElementById('comment').value = "";
         document.getElementById('rating').value = "1";
     })
-    .catch(error => console.error("Ошибка:", error));
+    .catch(error => {
+        console.error("Ошибка:", error);
+        alert("Произошла ошибка. Попробуйте снова.");
+    });
 }
 
-// Загрузка отзывов при открытии страницы
 function loadReviews(productId) {
     fetch(`/product/${productId}/reviews`)
         .then(response => response.text())
