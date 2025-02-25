@@ -51,7 +51,7 @@ function submitReview() {
     })
     .then(([reviewsHtml, newRating]) => {
         document.getElementById('reviews-container').innerHTML = reviewsHtml;
-        document.getElementById('product-rating').textContent = newRating.trim() + " ★";
+        document.getElementById('product-rating').textContent = newRating.trim();
 
         // Очищаем форму отзыва
         document.getElementById('comment').value = "";
