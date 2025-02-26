@@ -64,18 +64,18 @@
         <input type="hidden" name="category" th:value="${selectedCategory}">
 
         <div class="filter-group">
-          <label for="minPrice">Мин. цена:</label>
+          <label for="minPrice">Мин.цена:</label>
           <input type="number" id="minPrice" name="minPrice" step="1" placeholder="Мин. цена">
         </div>
 
         <div class="filter-group">
-          <label for="maxPrice">Макс. цена:</label>
+          <label for="maxPrice">Макс.цена:</label>
           <input type="number" id="maxPrice" name="maxPrice" step="1" placeholder="Макс. цена">
         </div>
 
         <div class="filter-group">
           <label for="sortPrice">Сортировка по цене:</label>
-          <select id="sortPrice" name="sortPrice">
+          <select id="sortPrice" name="sortPrice" class="filter-dropdown">
             <option value="">Не сортировать</option>
             <option value="asc" th:selected="${sortPrice == 'asc'}">По возрастанию</option>
             <option value="desc" th:selected="${sortPrice == 'desc'}">По убыванию</option>
@@ -84,7 +84,7 @@
 
         <div class="filter-group">
           <label for="sortRating">Сортировка по рейтингу:</label>
-          <select id="sortRating" name="sortRating">
+          <select id="sortRating" name="sortRating" class="filter-dropdown">
             <option value="">Не сортировать</option>
             <option value="asc" th:selected="${sortRating == 'asc'}">По возрастанию</option>
             <option value="desc" th:selected="${sortRating == 'desc'}">По убыванию</option>
@@ -102,10 +102,11 @@
       <div class="product-card" th:each="product : ${products}">
         <img th:src="@{/images/${product.imageUrl}}" alt="Изображение товара">
         <h3 th:text="${product.name}">Название товара</h3>
+
         <p th:text="${product.description}">Описание товара</p>
         <p>Цена: <span th:text="${product.price}">Цена товара</span> ₽</p>
         <p>Рейтинг: <span th:text="${product.averageRating}">Рейтинг товара</span> ★</p>
-        <a th:href="@{/product/{id}(id=${product.id})}" class="details-button">Подробнее</a>
+        <a th:href="@{/product/} + ${product.id}">Подробнее</a>
       </div>
     </div>
   </section>
@@ -164,6 +165,25 @@
       padding: 10px;
       margin-bottom: 20px;
       border: 1px solid #ddd;
+      border-radius: 5px;
+  }
+
+  .filters-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+  }
+
+  .filter-group {
+      display: flex;
+      flex-direction: column;
+  }
+
+
+  .filter-dropdown {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #ccc;
       border-radius: 5px;
   }
 

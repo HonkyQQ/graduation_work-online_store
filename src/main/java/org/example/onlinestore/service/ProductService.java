@@ -6,6 +6,8 @@ import jakarta.persistence.TypedQuery;
 import org.example.onlinestore.entity.Product;
 import org.example.onlinestore.repository.ProductRepository;
 import org.example.onlinestore.repository.ReviewRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,8 @@ import java.util.List;
 
 @Service
 public class ProductService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
@@ -29,20 +33,27 @@ public class ProductService {
     }
 
     public List<Product> getAllProducts() {
+        logger.info("Запрос на получение всех товаров");
         return productRepository.findAll();
     }
 
     public List<Product> getProductsByCategory(Long categoryId) {
+        logger.info("Запрос на получение товаров по категории ID: {}", categoryId);
         return productRepository.findAll((root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("category").get("id"), categoryId));
     }
 
     public Product getProductById(Long id) {
+        logger.info("Поиск товара с ID: {}", id);
         return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Товар с ID " + id + " не найден."));
+                .orElseThrow(() -> {
+                    logger.error("Товар с ID {} не найден!", id);
+                    return new RuntimeException("Товар с ID " + id + " не найден.");
+                });
     }
 
     public List<Product> searchProducts(String query) {
+        logger.info("Поиск товаров по запросу: {}", query);
         return productRepository.findAll((root, queryBuilder, criteriaBuilder) -> {
             String likePattern = "%" + query.toLowerCase() + "%";
             return criteriaBuilder.or(
@@ -53,6 +64,9 @@ public class ProductService {
     }
 
     public List<Product> filterProducts(String category, BigDecimal minPrice, BigDecimal maxPrice, String sortPrice, String sortRating) {
+        logger.info("Фильтрация товаров по категории: {}, мин. цена: {}, макс. цена: {}, сортировка по цене: {}, сортировка по рейтингу: {}",
+                category, minPrice, maxPrice, sortPrice, sortRating);
+
         StringBuilder jpql = new StringBuilder("SELECT p FROM Product p LEFT JOIN p.reviews r WHERE 1=1");
 
         if (category != null && !category.isEmpty()) {
@@ -93,12 +107,14 @@ public class ProductService {
     }
 
     public double getAverageRating(Long productId) {
+        logger.info("Получение среднего рейтинга товара с ID: {}", productId);
         Double avgRating = reviewRepository.calculateAverageRating(productId);
         return (avgRating != null) ? avgRating : 0.0;
     }
 
     @Transactional
     public void updateAverageRating(Long productId) {
+        logger.info("Обновление среднего рейтинга товара с ID: {}", productId);
         Product product = getProductById(productId);
 
         Double avgRating = reviewRepository.calculateAverageRating(productId);
