@@ -44,18 +44,17 @@ function submitReview() {
     .then(response => {
         if (!response.ok) throw new Error("Ошибка при добавлении отзыва");
 
-        return Promise.all([
-            fetch(`/product/${productId}/reviews`).then(res => res.text()),
-            fetch(`/product/${productId}/average-rating`).then(res => res.text())
-        ]);
+        return fetch(`/product/${productId}/reviews`).then(res => res.text());
     })
-    .then(([reviewsHtml, newRating]) => {
+    .then(reviewsHtml => {
         document.getElementById('reviews-container').innerHTML = reviewsHtml;
-        document.getElementById('product-rating').textContent = newRating.trim();
-
-        // Очищаем форму отзыва
         document.getElementById('comment').value = "";
         document.getElementById('rating').value = "1";
+
+        // Добавляем задержку перед обновлением среднего рейтинга
+       setTimeout(() => {
+           location.reload();
+       }, 1000);
     })
     .catch(error => {
         console.error("Ошибка:", error);
