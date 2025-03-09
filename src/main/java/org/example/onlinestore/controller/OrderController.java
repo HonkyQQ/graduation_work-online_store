@@ -22,13 +22,6 @@ public class OrderController {
         this.userService = userService;
     }
 
-    /**
-     * Показать форму для оформления заказа.
-     *
-     * @param userId ID пользователя (может быть null).
-     * @param model  Модель для Thymeleaf.
-     * @return Шаблон страницы оформления заказа.
-     */
     @GetMapping("/create")
     public String showOrderForm(@RequestParam(required = false) Long userId, Model model) {
         Order order = new Order();
@@ -43,13 +36,6 @@ public class OrderController {
         return "order";
     }
 
-    /**
-     * Обработка создания заказа.
-     *
-     * @param order  Данные заказа.
-     * @param userId ID пользователя (может быть null).
-     * @return Редирект на главную страницу после создания заказа.
-     */
     @PostMapping("/create")
     public String createOrder(@ModelAttribute Order order, @RequestParam(required = false) Long userId) {
         orderService.createOrder(order, userId);

@@ -22,7 +22,7 @@ public class CartController {
 
     @GetMapping("/cart")
     public String showCart(Model model) {
-        Long userId = 1L; // Временный ID пользователя, пока не реализована аутентификация
+        Long userId = 1L;
         List<Product> products = cartService.getProductsInCart(userId);
         BigDecimal totalPrice = cartService.getTotalPrice(userId);
 

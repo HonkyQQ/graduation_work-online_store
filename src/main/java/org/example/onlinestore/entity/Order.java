@@ -15,7 +15,7 @@ public class Order {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false) // Поле обязательно
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToMany

@@ -21,13 +21,6 @@ public class OrderService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Создание нового заказа.
-     *
-     * @param order  Данные заказа.
-     * @param userId ID пользователя (может быть null).
-     * @return Созданный заказ.
-     */
     public Order createOrder(Order order, Long userId) {
         if (userId != null) {
             User user = userRepository.findById(userId)
