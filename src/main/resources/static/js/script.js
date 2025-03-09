@@ -51,7 +51,6 @@ function submitReview() {
         document.getElementById('comment').value = "";
         document.getElementById('rating').value = "1";
 
-        // Добавляем задержку перед обновлением среднего рейтинга
        setTimeout(() => {
            location.reload();
        }, 1000);
