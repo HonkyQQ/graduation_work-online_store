@@ -8,7 +8,7 @@
 2. Пароль, логин указаны в application.properties. username=root password=kleveta1875QWKDOS
 3. Если у вас другой пароль - поменять в application.properties.
 4. Использовался порт 3306 всё по дефолту, ничего не менялось кроме названия сервера;
-5. Запустить OnlineStoreApplication только после запуска БД mysql;
+5. Запустить OnlineStoreApplication только после запуска БД mysql. Я работала в Intelij IDEA; 
 6. Дождаться надписи на появившемся терминале "Приложение запущено и работает..."
 7. Открыть http://localhost:8080/
 
